@@ -41,11 +41,6 @@ class ComposerLock
         $this->lock = json_decode(file_get_contents($lock));
     }
 
-    public function cache()
-    {
-        return $this->cache;
-    }
-
     public function devPackages()
     {
         return $this->packages(true);

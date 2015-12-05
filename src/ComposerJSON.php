@@ -105,9 +105,10 @@ class ComposerJSON
         $this->paths['vendor-dir'] = $config && isset($config->{'vendor-dir'}) ?
             $config->{'vendor-dir'} :
             'vendor';
-        $this->paths['wordpress-install-dir'] = $extra && isset($extra->{'wordpress-install-dir'}) ?
-            $extra->{'wordpress-install-dir'} :
-            'wordpress';
+
+        if ($extra && isset($extra->{'wordpress-install-dir'})) {
+            $this->paths['wordpress-install-dir'] = $extra->{'wordpress-install-dir'};
+        }
 
         foreach ($installer_paths as $path => $types) {
             $types = array_map([$this, 'stripType'], $types);
@@ -115,18 +116,6 @@ class ComposerJSON
             foreach ($types as $type) {
                 $this->paths[ $type ] = $path;
             }
-        }
-
-        if ( ! isset( $this->paths['wordpress-muplugin'] ) ) {
-            $this->paths['wordpress-muplugin'] = 'wp-content/mu-plugins/{$name}/';
-        }
-
-        if ( ! isset( $this->paths['wordpress-plugin'] ) ) {
-            $this->paths['wordpress-plugin'] = 'wp-content/plugins/{$name}/';
-        }
-
-        if ( ! isset( $this->paths['wordpress-theme'] ) ) {
-            $this->paths['wordpress-theme'] = 'wp-content/themes/{$name}/';
         }
     }
 

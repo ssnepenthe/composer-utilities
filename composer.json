@@ -1,0 +1,13 @@
+{
+    "name": "ssnepenthe/composer-utilities",
+    "description": "Some basic utilities for working with Composer projects.",
+    "type": "library",
+    "homepage": "https://github.com/ssnepenthe/composer-utilities",
+    "license": "GPL-2.0",
+    "require": {
+        "php": ">=5.4"
+    },
+    "autoload": {
+        "psr-4": { "SSNepenthe\\ComposerUtilities\\": "src/" }
+    }
+}

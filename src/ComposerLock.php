@@ -28,7 +28,7 @@ class ComposerLock
             );
         }
 
-        if ( is_dir($lock)) {
+        if (is_dir($lock)) {
             $lock .= '/composer.lock';
         }
 

@@ -36,7 +36,8 @@ class ComposerJSON
         $this->json = json_decode($file);
     }
 
-    public function filterPathsByName($name) {
+    public function filterPathsByName($name)
+    {
         if (! is_string($name)) {
             throw new \InvalidArgumentException(
                 sprintf(
@@ -47,7 +48,7 @@ class ComposerJSON
             );
         }
 
-        return isset( $this->paths()[ $name ] ) ? $this->paths()[ $name ] : null;
+        return isset($this->paths()[ $name ]) ? $this->paths()[ $name ] : null;
     }
 
     public function hash()
@@ -64,24 +65,29 @@ class ComposerJSON
         return $this->paths;
     }
 
-    public function muPluginPath() {
-        return $this->filterPathsByName( 'wordpress-muplugin' );
+    public function muPluginPath()
+    {
+        return $this->filterPathsByName('wordpress-muplugin');
     }
 
-    public function pluginPath() {
-        return $this->filterPathsByName( 'wordpress-plugin' );
+    public function pluginPath()
+    {
+        return $this->filterPathsByName('wordpress-plugin');
     }
 
-    public function themePath() {
-        return $this->filterPathsByName( 'wordpress-theme' );
+    public function themePath()
+    {
+        return $this->filterPathsByName('wordpress-theme');
     }
 
-    public function vendorPath() {
-        return $this->filterPathsByName( 'vendor-dir' );
+    public function vendorPath()
+    {
+        return $this->filterPathsByName('vendor-dir');
     }
 
-    public function wordPressPath() {
-        return $this->filterPathsByName( 'wordpress-install-dir' );
+    public function wordPressPath()
+    {
+        return $this->filterPathsByName('wordpress-install-dir');
     }
 
     protected function setPaths()

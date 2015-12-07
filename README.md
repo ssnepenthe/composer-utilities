@@ -50,7 +50,7 @@ Note that all packages are returned as an instance of `SSNepenthe\ComposerUtilit
 $package->is_of_type( 'wordpress-plugin' ); // bool
 $package->is_wp_core(); // bool
 $package->is_wp_mu_plugin(); // bool
-$package->is_w_package(); // bool
+$package->is_wp_package(); // bool
 $package->is_wp_plugin(); // bool
 $package->is_wp_theme(); // bool
 $package->is_wpackagist_package(); // bool

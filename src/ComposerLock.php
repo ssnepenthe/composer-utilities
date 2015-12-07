@@ -1,148 +1,267 @@
 <?php
+/**
+ * Convenience functionality for composer.lock files.
+ *
+ * @package composer-utilities
+ */
 
 namespace SSNepenthe\ComposerUtilities;
 
+/**
+ * This class wraps a composer.lock file.
+ */
 class ComposerLock
 {
-    protected $lock;
-    protected $cache = [
-        'packages' => [
-            'types' => [],
-            'names' => [],
-        ],
-        'packages-dev' => [
-            'types' => [],
-            'names' => [],
-        ],
-    ];
+	/**
+	 * The hash of this composer.lock file
+	 *
+	 * @var string
+	 */
+	protected $hash;
 
-    public function __construct($lock = 'composer.lock')
-    {
-        if (! is_string($lock)) {
-            throw new \InvalidArgumentException(
-                sprintf(
-                    'Argument 1 passed to %s must be of type string, %s given.',
-                    __METHOD__,
-                    gettype($lock)
-                )
-            );
-        }
+	/**
+	 * JSON decoded composer.lock file.
+	 *
+	 * @var array
+	 */
+	protected $lock;
 
-        if (is_dir($lock)) {
-            $lock .= '/composer.lock';
-        }
+	/**
+	 * Index of packages by name.
+	 *
+	 * @var array
+	 */
+	protected $name_index;
 
-        if (! is_file($lock)) {
-            throw new \RuntimeException(
-                'Supplied lock file does not exist.'
-            );
-        }
+	/**
+	 * Index of packages by type.
+	 *
+	 * @var array
+	 */
+	protected $type_index;
 
-        $this->lock = json_decode(file_get_contents($lock));
-    }
+	/**
+	 * Set up our object.
+	 *
+	 * @param string $lock Path to composer.lock file.
+	 *
+	 * @throws \InvalidArgumentException If passed argument is not a string.
+	 * @throws \RuntimeException If passed argument is not a valid file path.
+	 */
+	public function __construct( $lock = 'composer.lock' ) {
+		if ( ! is_string( $lock ) ) {
+			throw new \InvalidArgumentException(
+				sprintf(
+					'Argument 1 passed to %s must be of type string, %s given.',
+					__METHOD__,
+					gettype( $lock )
+				)
+			);
+		}
 
-    public function devPackages()
-    {
-        return $this->packages(true);
-    }
+		if ( is_dir( $lock ) ) {
+			$lock .= '/composer.lock';
+		}
 
-    public function filterPackagesByName($name, $dev = false)
-    {
-        if (! is_string($name)) {
-            throw new \InvalidArgumentException(
-                sprintf(
-                    'Argument 1 passed to %s must be of type string, %s given.',
-                    __METHOD__,
-                    gettype($name)
-                )
-            );
-        }
+		if ( ! is_file( $lock ) ) {
+			throw new \RuntimeException(
+				'Supplied lock file does not exist.'
+			);
+		}
 
-        $key = $dev ? 'packages-dev' : 'packages';
+		$file = file_get_contents( $lock );
 
-        if (! isset($this->cache[ $key ]['names'][ $name ])) {
-            $this->setPackageNameCache($key, $name, $dev);
-        }
+		$this->hash = md5( $file );
+		$this->lock = json_decode( $file, true );
 
-        return isset($this->cache[ $key ]['names'][ $name ]) ?
-            $this->cache[ $key ]['names'][ $name ] :
-            null;
-    }
+		$this->lock['packages'] = array_map(
+			[ $this, 'instantiatePackage' ],
+			$this->lock['packages']
+		);
 
-    public function filterPackagesByType($type, $dev = false)
-    {
-        if (! is_string($type)) {
-            throw new \InvalidArgumentException(
-                sprintf(
-                    'Argument 1 passed to %s must be of type string, %s given.',
-                    __METHOD__,
-                    gettype($type)
-                )
-            );
-        }
+		$this->lock['packages-dev'] = array_map(
+			[ $this, 'instantiatePackage' ],
+			$this->lock['packages-dev']
+		);
 
-        $key = $dev ? 'packages-dev' : 'packages';
+		$this->generate_indices();
+	}
 
-        if (! isset($this->cache[ $key ]['types'][ $type ])) {
-            $this->setPackageTypeCache($key, $type, $dev);
-        }
+	/**
+	 * Get an array of dev-dependencies.
+	 *
+	 * @return array
+	 */
+	public function dev_packages() {
+		return $this->packages_by_environment( 'development' );
+	}
 
-        return isset($this->cache[ $key ]['types'][ $type ]) ?
-            $this->cache[ $key ]['types'][ $type ] :
-            null;
-    }
+	/**
+	 * Search for a single package by name.
+	 *
+	 * @param string $name A package name to search for.
+	 *
+	 * @throws \InvalidArgumentException If passed argument is not a string.
+	 *
+	 * @return SSNepenthe\ComposerUtilities\LockPackage
+	 */
+	public function package_by_name( $name ) {
+		if ( ! is_string( $name ) ) {
+			throw new \InvalidArgumentException(
+				sprintf(
+					'Argument 1 passed to %s must be of type string, %s given.',
+					__METHOD__,
+					gettype( $name )
+				)
+			);
+		}
 
-    public function filterWordPressPackagesByType($type, $dev = false)
-    {
-        if ('wordpress-' !== substr($type, 0, 10)) {
-            $type = 'wordpress-' . $type;
-        }
+		if ( ! isset( $this->name_index[ $name ] ) ) {
+			return null;
+		}
 
-        return $this->filterPackagesByType($type, $dev);
-    }
+		$dev = $this->name_index[ $name ]['dev'] ? 'packages-dev' : 'packages';
+		$key = $this->name_index[ $name ]['key'];
 
-    public function filterWpackagistPackagesByName($name, $dev = false)
-    {
-        if ('wpackagist-' !== substr($name, 0, 11)) {
-            $name = 'wpackagist-' . $name;
-        }
+		return $this->lock[ $dev ][ $key ];
+	}
 
-        return $this->filterPackagesByName($name, $dev);
-    }
+	/**
+	 * Get an array of dependencies.
+	 *
+	 * @return array
+	 */
+	public function packages() {
+		return $this->packages_by_environment( 'production' );
+	}
 
-    public function hash()
-    {
-        return $this->lock->hash;
-    }
+	/**
+	 * Get an array of packages based on dependency type.
+	 *
+	 * @param string $environment d, dev, or development for dev-dependencies.
+	 *
+	 * @throws \InvalidArgumentException If passed argument is not a string.
+	 *
+	 * @return array
+	 */
+	public function packages_by_environment( $environment ) {
+		if ( ! is_string( $environment ) ) {
+			throw new \InvalidArgumentException(
+				sprintf(
+					'Argument 1 passed to %s must be of type string, %s given.',
+					__METHOD__,
+					gettype( $environment )
+				)
+			);
+		}
 
-    public function packages($dev = false)
-    {
-        if ($dev) {
-            return $this->lock->{'packages-dev'};
-        }
+		switch ( $environment ) {
+			case 'd':
+			case 'dev':
+			case 'development':
+				$key = 'packages-dev';
+				break;
+			default:
+				$key = 'packages';
+				break;
+		}
 
-        return $this->lock->packages;
-    }
+		return $this->lock[ $key ];
+	}
 
-    protected function setPackageNameCache($key, $name, $dev)
-    {
-        foreach ($this->packages($dev) as $package) {
-            if ($name !== $package->name) {
-                continue;
-            }
+	/**
+	 * Get an array of packages based on package type.
+	 *
+	 * @param string $type Package type to search for.
+	 *
+	 * @throws \InvalidArgumentException If passed argument is not a string.
+	 *
+	 * @return array
+	 */
+	public function packages_by_type( $type ) {
+		if ( ! is_string( $type ) ) {
+			throw new \InvalidArgumentException(
+				sprintf(
+					'Argument 1 passed to %s must be of type string, %s given.',
+					__METHOD__,
+					gettype( $type )
+				)
+			);
+		}
 
-            $this->cache[ $key ]['names'][ $name ] = $package;
-        }
-    }
+		if ( ! isset( $this->type_index[ $type ] ) ) {
+			return null;
+		}
 
-    protected function setPackageTypeCache($key, $type, $dev)
-    {
-        foreach ($this->packages($dev) as $package) {
-            if ($type !== $package->type) {
-                continue;
-            }
+		$r = [];
 
-            $this->cache[ $key ]['types'][ $type ][] = $package;
-        }
-    }
+		foreach ( $this->type_index[ $type ] as $index ) {
+			$dev = $index['dev'] ? 'packages-dev' : 'packages';
+			$key = $index['key'];
+
+			$r[] = $this->lock[ $dev ][ $key ];
+		}
+
+		return $r;
+	}
+
+	/**
+	 * Get the hash of this composer.lock file.
+	 *
+	 * @return string
+	 */
+	public function hash() {
+		return $this->hash;
+	}
+
+	/**
+	 * Get the stored composer.json hash from this composer.lock file.
+	 *
+	 * @return string
+	 */
+	public function json_hash() {
+		return $this->lock['hash'];
+	}
+
+	/**
+	 * Generate package indices for easier package lookups.
+	 *
+	 * @return void
+	 */
+	protected function generate_indices() {
+		foreach ( $this->lock['packages'] as $key => $package ) {
+			$this->name_index[ $package->name() ] = [
+				'dev' => false,
+				'key' => $key,
+			];
+
+			$this->type_index[ $package->type() ][] = [
+				'dev' => false,
+				'key' => $key,
+			];
+		}
+
+		foreach ( $this->lock['packages-dev'] as $key => $package ) {
+			$this->name_index[ $package->name() ] = [
+				'dev' => true,
+				'key' => $key,
+			];
+
+			$this->type_index[ $package->type() ][] = [
+				'dev' => true,
+				'key' => $key,
+			];
+		}
+	}
+
+	/**
+	 * Create a new LockPackage object from a given composer package array.
+	 *
+	 * @param array $package composer.lock package.
+	 *
+	 * @return SSNepenthe\ComposerUtilities\LockPackage
+	 */
+	protected function instantiate_package( $package ) {
+		return new LockPackage( $package );
+	}
 }

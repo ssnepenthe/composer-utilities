@@ -97,6 +97,24 @@ class ComposerLock
 	}
 
 	/**
+	 * Get the hash of this composer.lock file.
+	 *
+	 * @return string
+	 */
+	public function hash() {
+		return $this->hash;
+	}
+
+	/**
+	 * Get the stored composer.json hash from this composer.lock file.
+	 *
+	 * @return string
+	 */
+	public function json_hash() {
+		return $this->lock['hash'];
+	}
+
+	/**
 	 * Search for a single package by name.
 	 *
 	 * @param string $name A package name to search for.
@@ -203,24 +221,6 @@ class ComposerLock
 		}
 
 		return $r;
-	}
-
-	/**
-	 * Get the hash of this composer.lock file.
-	 *
-	 * @return string
-	 */
-	public function hash() {
-		return $this->hash;
-	}
-
-	/**
-	 * Get the stored composer.json hash from this composer.lock file.
-	 *
-	 * @return string
-	 */
-	public function json_hash() {
-		return $this->lock['hash'];
 	}
 
 	/**

@@ -69,6 +69,24 @@ class ComposerJSON
 	}
 
 	/**
+	 * Get the hash of this composer.json file.
+	 *
+	 * @return string
+	 */
+	public function hash() {
+		return $this->hash;
+	}
+
+	/**
+	 * Get the WordPress mu-plugins path.
+	 *
+	 * @return string
+	 */
+	public function mu_plugin_path() {
+		return $this->filter_paths_by_name( 'wordpress-muplugin' );
+	}
+
+	/**
 	 * Get a single install path by name.
 	 *
 	 * @param string $name Install path name.
@@ -92,15 +110,6 @@ class ComposerJSON
 	}
 
 	/**
-	 * Get the hash of this composer.json file.
-	 *
-	 * @return string
-	 */
-	public function hash() {
-		return $this->hash;
-	}
-
-	/**
 	 * Get all install paths.
 	 *
 	 * @return array
@@ -111,15 +120,6 @@ class ComposerJSON
 		}
 
 		return $this->paths;
-	}
-
-	/**
-	 * Get the WordPress mu-plugins path.
-	 *
-	 * @return string
-	 */
-	public function mu_plugin_path() {
-		return $this->filter_paths_by_name( 'wordpress-muplugin' );
 	}
 
 	/**

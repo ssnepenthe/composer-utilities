@@ -40,22 +40,11 @@ class LockPackage
 	}
 
 	/**
-	 * Determine whether or not this package is a wpackagist.org package.
-	 *
-	 * @return boolean
-	 */
-	public function is_wpackagist_package() {
-
-		return 'wpackagist-' === substr( $this->package['name'], 0, 11 );
-	}
-
-	/**
 	 * Determine whether or not this package is the WordPress core.
 	 *
 	 * @return boolean
 	 */
 	public function is_wp_core() {
-
 		return $this->is_of_type( 'wordpress-core' );
 	}
 
@@ -65,7 +54,6 @@ class LockPackage
 	 * @return boolean
 	 */
 	public function is_wp_mu_plugin() {
-
 		return $this->is_of_type( 'wordpress-muplugin' );
 	}
 
@@ -75,7 +63,6 @@ class LockPackage
 	 * @return boolean
 	 */
 	public function is_wp_package() {
-
 		return 'wordpress-' === substr( $this->package['type'], 0, 10 );
 	}
 
@@ -85,7 +72,6 @@ class LockPackage
 	 * @return boolean
 	 */
 	public function is_wp_plugin() {
-
 		return $this->is_of_type( 'wordpress-plugin' );
 	}
 
@@ -95,8 +81,16 @@ class LockPackage
 	 * @return boolean
 	 */
 	public function is_wp_theme() {
-
 		return $this->is_of_type( 'wordpress-theme' );
+	}
+
+	/**
+	 * Determine whether or not this package is a wpackagist.org package.
+	 *
+	 * @return boolean
+	 */
+	public function is_wpackagist_package() {
+		return 'wpackagist-' === substr( $this->package['name'], 0, 11 );
 	}
 
 	/**
@@ -105,7 +99,6 @@ class LockPackage
 	 * @return string
 	 */
 	public function name() {
-
 		return $this->package['name'];
 	}
 
@@ -115,7 +108,6 @@ class LockPackage
 	 * @return string
 	 */
 	public function type() {
-
 		return $this->package['type'];
 	}
 
@@ -125,7 +117,6 @@ class LockPackage
 	 * @return string
 	 */
 	public function version() {
-
 		return $this->package['version'];
 	}
 }

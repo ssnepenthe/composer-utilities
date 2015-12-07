@@ -83,7 +83,7 @@ class ComposerJSON
 	 * @return string
 	 */
 	public function mu_plugin_path() {
-		return $this->filter_paths_by_name( 'wordpress-muplugin' );
+		return $this->path_by_name( 'wordpress-muplugin' );
 	}
 
 	/**
@@ -128,7 +128,7 @@ class ComposerJSON
 	 * @return string
 	 */
 	public function plugin_path() {
-		return $this->filter_paths_by_name( 'wordpress-plugin' );
+		return $this->path_by_name( 'wordpress-plugin' );
 	}
 
 	/**
@@ -137,7 +137,7 @@ class ComposerJSON
 	 * @return string
 	 */
 	public function theme_path() {
-		return $this->filter_paths_by_name( 'wordpress-theme' );
+		return $this->path_by_name( 'wordpress-theme' );
 	}
 
 	/**
@@ -146,7 +146,7 @@ class ComposerJSON
 	 * @return string
 	 */
 	public function vendor_path() {
-		return $this->filter_paths_by_name( 'vendor-dir' );
+		return $this->path_by_name( 'vendor-dir' );
 	}
 
 	/**
@@ -155,7 +155,7 @@ class ComposerJSON
 	 * @return string
 	 */
 	public function wordpress_path() {
-		return $this->filter_paths_by_name( 'wordpress-install-dir' );
+		return $this->path_by_name( 'wordpress-install-dir' );
 	}
 
 	/**

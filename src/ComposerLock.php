@@ -75,12 +75,12 @@ class ComposerLock
 		$this->lock = json_decode( $file, true );
 
 		$this->lock['packages'] = array_map(
-			[ $this, 'instantiatePackage' ],
+			[ $this, 'instantiate_package' ],
 			$this->lock['packages']
 		);
 
 		$this->lock['packages-dev'] = array_map(
-			[ $this, 'instantiatePackage' ],
+			[ $this, 'instantiate_package' ],
 			$this->lock['packages-dev']
 		);
 

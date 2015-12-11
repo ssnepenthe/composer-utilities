@@ -35,10 +35,16 @@ class JsonFile {
 	/**
 	 * Set up the object.
 	 *
+	 * @throws \RuntimeException If the file does not exist.
+	 *
 	 * @param string $path Path to a json file.
 	 */
 	public function __construct( $path ) {
 		$this->path = $path;
+
+		if ( ! $this->exists() ) {
+			throw new \RuntimeException( $this->path . ' is not a valid file' );
+		}
 	}
 
 	/**
@@ -105,15 +111,9 @@ class JsonFile {
 	/**
 	 * Read the file at the path passed to the constructor.
 	 *
-	 * @throws \RuntimeException If the file does not exist.
-	 *
 	 * @return string
 	 */
 	protected function read() {
-		if ( ! $this->exists() ) {
-			throw new \RuntimeException( $this->path . ' is not a valid file' );
-		}
-
 		return file_get_contents( $this->path );
 	}
 

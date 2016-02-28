@@ -5,12 +5,14 @@
  * @package composer-utilities
  */
 
-namespace SSNepenthe\ComposerUtilities;
+namespace SSNepenthe\ComposerUtilities\Composer;
+
+use SSNepenthe\ComposerUtilities\Json;
 
 /**
  * This class wraps a composer.lock file.
  */
-class ComposerLock extends JsonFile {
+class Lock extends Json {
 	/**
 	 * MD5 hash of this composer.lock file
 	 *
@@ -38,6 +40,8 @@ class ComposerLock extends JsonFile {
 	 * @param string $path Path to composer.lock file.
 	 */
 	public function __construct( $path = 'composer.lock' ) {
+		$path = realpath( $path );
+
 		if ( is_dir( $path ) ) {
 			$path .= '/composer.lock';
 		}
@@ -217,6 +221,6 @@ class ComposerLock extends JsonFile {
 	 * @return SSNepenthe\ComposerUtilities\LockPackage
 	 */
 	protected function instantiate_package( $package ) {
-		return new LockPackage( $package );
+		return new Package( $package );
 	}
 }

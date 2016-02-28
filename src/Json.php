@@ -10,7 +10,7 @@ namespace SSNepenthe\ComposerUtilities;
 /**
  * This class wraps a json file.
  */
-class JsonFile {
+class Json {
 	/**
 	 * Path to a json file.
 	 *
@@ -40,10 +40,12 @@ class JsonFile {
 	 * @param string $path Path to a json file.
 	 */
 	public function __construct( $path ) {
-		$this->path = $path;
+		$this->path = realpath( $path );
 
 		if ( ! $this->exists() ) {
-			throw new \RuntimeException( $this->path . ' is not a valid file' );
+			throw new \RuntimeException(
+				sprintf( '%s is not a valid file', $this->path() )
+			);
 		}
 	}
 
@@ -93,7 +95,9 @@ class JsonFile {
 		$object = json_decode( $this->json() );
 
 		if ( ! $this->valid( $object ) ) {
-			throw new \RuntimeException( $this->path . ' does not contain valid JSON' );
+			throw new \RuntimeException(
+				sprintf( '%s does not contain valid JSON', $this->path() )
+			);
 		}
 
 		return $object;

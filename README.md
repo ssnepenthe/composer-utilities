@@ -1,5 +1,5 @@
 # composer-utilities
-Some basic utilities for working with Composer projects.
+Some basic utilities for for retrieving information about Composer projects from `composer.json` and `composer.lock`.
 
 The WordPress implementations assume that you are using the `composer/installers` composer plugin, the `johnpbloch/wordpress` package for core and `wpackagist.org` as a composer repository.
 
@@ -9,32 +9,32 @@ Instantiate with paths to your `composer.json` and `composer.lock` files.
 Generic json:
 
 ```php
-use SSNepenthe\ComposerUtilities\JsonFile;
+use SSNepenthe\ComposerUtilities\Json;
 
-$json = new JsonFile( __DIR__ . '/composer.json' );
+$json = new Json( __DIR__ . '/composer.json' );
 ```
 
 Composer Specific:
 
 ```php
-use SSNepenthe\ComposerUtilities\ComposerJson;
-use SSNepenthe\ComposerUtilities\ComposerLock;
+use SSNepenthe\ComposerUtilities\Composer\Json;
+use SSNepenthe\ComposerUtilities\Composer\Lock;
 
-$json = new ComposerJson( __DIR__ . '/composer.json' );
-$lock = new ComposerLock( __DIR__ . '/composer.lock' );
+$json = new Json( __DIR__ . '/composer.json' );
+$lock = new Lock( __DIR__ . '/composer.lock' );
 ```
 
 WordPress Specific:
 
 ```php
-use SSNepenthe\ComposerUtilities\WordPressJson;
-use SSNepenthe\ComposerUtilities\WordPressLock;
+use SSNepenthe\ComposerUtilities\WordPress\Json;
+use SSNepenthe\ComposerUtilities\WordPress\Lock;
 
-$json = new ComposerLock( __DIR__ . '/composer.lock' );
-$lock = new ComposerLock( __DIR__ . '/composer.lock' );
+$json = new Json( __DIR__ . '/composer.json' );
+$lock = new Lock( __DIR__ . '/composer.lock' );
 ```
 
-`JsonFile` is the base class that provides some convenience methods for working with json files:
+`SSNepenthe\ComposerUtilities\Json` is the base class that provides some convenience methods for working with json files:
 
 ```php
 $json->json(); // a string containing the full contents of the passed json file, throws RuntimeException if the file does not exist
@@ -42,65 +42,65 @@ $json->object(); // same as json_decode( $json->json() ) but throws a RuntimeExc
 $json->path(); // the path passed to the contructor
 ```
 
-`ComposerJson` extends `JsonFile`, adding the following methods:
+`SSNepenthe\ComposerUtilities\Composer\Json` extends `SSNepenthe\ComposerUtilities\Json`, adding the following methods:
 
 ```php
 $json->hash(); // md5 hash of the file
-$json->path_by_name( 'wordpress-plugin' ); // the path to the named package type as set in your composer.json file, null if not set
-$json->paths(); // an array of all paths set in composer.json
-$json->vendor_path(); // path corresponding to config->{'vendor-dir'}
+$json->path_by_name( 'type:wordpress-plugin' ); // the install path as set in composer.json extra->{'installer-paths'}, null if not set
+$json->paths(); // an array of all paths from extra->{'installer-paths'}
+$json->vendor_path(); // alias of $json->path_by_name( 'vendor-dir' )
 ```
 
-`WordPressJson` extends `ComposerJson`, adding the following methods:
+`SSNepenthe\ComposerUtilities\WordPress\Json` extends `SSNepenthe\ComposerUtilities\Composer\Json`, adding the following methods:
 
 ```php
-$json->mu_plugin_path(); // path corresponding to wordpress-muplugin in extra->{'installer-paths'}
-$json->plugin_path(); // path corresponding to wordpress-plugin in extra->{'installer-paths'}
-$json->theme_path(); // path corresponding to wordpress-theme in extra->{'installer-paths'}
-$json->wordpress_path(); // path corresponding to extra->{'wordpress-install-dir'}
+$json->mu_plugin_path(); // alias of $json->path_by_name( 'type:wordpress-muplugin' )
+$json->plugin_path(); // alias of $json->path_by_name( 'type:wordpress-plugin' )
+$json->theme_path(); // alias of $json->path_by_name( 'type:wordpress-theme' )
+$json->wordpress_path(); // alias of $json->path_by_name( 'wordpress-install-dir' )
 ```
 
-`ComposerLock` extends `JsonFile`, adding the following methods:
+`SSNepenthe\ComposerUtilities\Composer\Lock` extends `SSNepenthe\ComposerUtilities\Json`, adding the following methods:
 
 ```php
-$lock->dev_packages(); // an array of dev-dependencies
+$lock->dev_packages(); // alias of $lock->packages( true )
 $lock->hash(); // md5 hash of the composer.lock file
 $lock->json_hash(); // md5 hash of the composer.json file from which this lock file was generated
 $lock->name_index(); // an index of packages useful for searching by name
 $lock->package_by_name( 'johnpbloch/wordpress' ); // get the package named 'johnpbloch/wordpress'
-$lock->packages(); // an array of dependencies
-$lock->packages_by_type( 'wordpress-plugin' ); // an array of all wordpress-plugin packages
+$lock->packages(); // an array of composer dependencies, pass true as first parameter to get dev-dependencies instead
+$lock->packages_by_type( 'wordpress-plugin' ); // an array of all packages with type of wordpress-plugin
 $lock->type_index(); // an index of packages useful for searching by type
 ```
 
-Note that individual packages are returned as an instance of `SSNepenthe\ComposerUtilities\LockPackage` with the following methods:
+Note that individual packages are returned as an instance of `SSNepenthe\ComposerUtilities\Composer\Package` with the following methods:
 
 ```php
-$package->is_composer_plugin(); // bool
-$package->is_library(); // bool
+$package->is_composer_plugin(); // alias of $package->is_of_type( 'composer-plugin' )
+$package->is_library(); // alias of $package->is_of_type( 'library' )
 $package->is_of_type( 'wordpress-plugin' ); // bool
 $package->name(); // string
 $package->type(); // string
 $package->version(); // string
 ```
 
-`WordPressLock` extends `ComposerLock`, adding the following methods:
+`SSNepenthe\ComposerUtilities\WordPress\Lock` extends `SSNepenthe\ComposerUtilities\Composer\Lock`, adding the following methods:
 
 ```php
-$lock->core_packages(); // an array of all packages of type 'wordpress-core'
-$lock->mu_plugin_packages(); // an array of all packages of type 'wordpress-muplugin'
-$lock->plugin_packages(); // an array of all packages of type 'wordpress-plugin'
-$lock->theme_packages(); // an array of all packages of type 'wordpress-theme'
+$lock->core_packages(); // alias of $lock->packages_by_type( 'wordpress-core' )
+$lock->mu_plugin_packages(); // alias of $lock->packages_by_type( 'wordpress-muplugin' )
+$lock->plugin_packages(); // alias of $lock->packages_by_type( 'wordpress-plugin' )
+$lock->theme_packages(); // alias of $lock->packages_by_type( 'wordpress-theme' )
 $lock->wordpress_packages(); // an array of all WordPress packages
 ```
 
-Note that individual packages will be returned as an instance of `SSNepenthe\ComposerUtilities\WordPressPackage`, which extends `LockPackage` with the following methods:
+Note that individual packages will be returned as an instance of `SSNepenthe\ComposerUtilities\WordPress\Package`, which extends `SSNepenthe\ComposerUtilities\Composer\Package` with the following methods:
 
 ```php
-$package->is_wp_core(); // bool
-$package->is_wp_mu_plugin(); // bool
+$package->is_wp_core(); // alias of $package->is_of_type( 'wordpress-core' )
+$package->is_wp_mu_plugin(); // alias of $package->is_of_type( 'wordpress-muplugin' )
 $package->is_wp_package(); // bool
-$package->is_wp_plugin(); // bool
-$package->is_wp_theme(); // bool
+$package->is_wp_plugin(); // alias of $package->is_of_type( 'wordpress-plugin' )
+$package->is_wp_theme(); // alias of $package->is_of_type( 'wordpress-theme' )
 $package->is_wpackagist_package(); // bool
 ```

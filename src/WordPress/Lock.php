@@ -5,13 +5,15 @@
  * @package composer-utilities
  */
 
-namespace SSNepenthe\ComposerUtilities;
+namespace SSNepenthe\ComposerUtilities\WordPress;
+
+use SSNepenthe\ComposerUtilities\Composer\Lock as ComposerLock;
 
 /**
  * This class wraps a composer.lock file with convenience methods useful for
  * WordPress projects.
  */
-class WordPressLock extends ComposerLock {
+class Lock extends ComposerLock {
 	/**
 	 * Get an array of all WordPress core packages.
 	 *
@@ -70,6 +72,6 @@ class WordPressLock extends ComposerLock {
 	 * @return SSNepenthe\ComposerUtilities\LockPackage
 	 */
 	protected function instantiate_package( $package ) {
-		return new WordPressPackage( $package );
+		return new Package( $package );
 	}
 }

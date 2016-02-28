@@ -5,12 +5,12 @@
  * @package composer-utilities
  */
 
-namespace SSNepenthe\ComposerUtilities;
+namespace SSNepenthe\ComposerUtilities\Composer;
 
 /**
  * This class wraps a single package from a JSON decoded composer.lock file.
  */
-class LockPackage {
+class Package {
 	/**
 	 * JSON decoded package from composer.lock.
 	 *
@@ -53,7 +53,7 @@ class LockPackage {
 	 * @return boolean
 	 */
 	public function is_of_type( $type ) {
-		return $type === $this->object->type;
+		return $type === $this->type();
 	}
 
 	/**

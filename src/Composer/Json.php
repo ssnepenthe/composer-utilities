@@ -5,12 +5,14 @@
  * @package composer-utilities
  */
 
-namespace SSNepenthe\ComposerUtilities;
+namespace SSNepenthe\ComposerUtilities\Composer;
+
+use SSNepenthe\ComposerUtilities\Json as JsonFile;
 
 /**
  * This class wraps a composer.json file.
  */
-class ComposerJson extends JsonFile {
+class Json extends JsonFile {
 	/**
 	 * MD5 hash of the file.
 	 *
@@ -31,6 +33,8 @@ class ComposerJson extends JsonFile {
 	 * @param string $path Path to composer.json file.
 	 */
 	public function __construct( $path = 'composer.json' ) {
+		$path = realpath( $path );
+
 		if ( is_dir( $path ) ) {
 			$path .= '/composer.json';
 		}
@@ -91,9 +95,20 @@ class ComposerJson extends JsonFile {
 		$config = isset( $this->object()->config ) ?
 			$this->object()->config :
 			false;
-
+		$extra = isset( $this->object()->extra ) ?
+			$this->object()->extra :
+			false;
+		$installer_paths = $extra && isset( $extra->{'installer-paths'} ) ?
+			$extra->{'installer-paths'} :
+			[];
 		$this->paths['vendor-dir'] = $config && isset( $config->{'vendor-dir'} ) ?
 			$config->{'vendor-dir'} :
 			'vendor';
+
+		foreach ( $installer_paths as $path => $types ) {
+			foreach ( $types as $type ) {
+				$this->paths[ $type ] = $path;
+			}
+		}
 	}
 }

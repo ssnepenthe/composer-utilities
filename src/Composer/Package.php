@@ -26,6 +26,15 @@ class Package {
 	public function __construct( $object ) {
 		$this->object = $object;
 	}
+	
+	/**
+	 * So we can use array_unique on a collection of packages.
+	 * 
+	 * @return string
+	 */
+	public function __toString() {
+		return sprintf( '%s:%s', $this->name(), $this->version() );
+	}
 
 	/**
 	 * Whether or not this package is of type 'composer-plugin'.

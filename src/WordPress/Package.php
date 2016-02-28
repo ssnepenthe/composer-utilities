@@ -5,13 +5,15 @@
  * @package composer-utilities
  */
 
-namespace SSNepenthe\ComposerUtilities;
+namespace SSNepenthe\ComposerUtilities\WordPress;
+
+use SSNepenthe\ComposerUtilities\Composer\Package as ComposerPackage;
 
 /**
  * This class wraps a single package from a composer.lock file with convenience
  * methods useful for WordPress projects.
  */
-class WordPressPackage extends LockPackage {
+class Package extends ComposerPackage {
 	/**
 	 * Determine whether or not this package is the WordPress core.
 	 *
@@ -36,7 +38,7 @@ class WordPressPackage extends LockPackage {
 	 * @return boolean
 	 */
 	public function is_wp_package() {
-		return 'wordpress-' === substr( $this->object->type, 0, 10 );
+		return 'wordpress-' === substr( $this->type(), 0, 10 );
 	}
 
 	/**
@@ -63,6 +65,6 @@ class WordPressPackage extends LockPackage {
 	 * @return boolean
 	 */
 	public function is_wpackagist_package() {
-		return 'wpackagist-' === substr( $this->object->name, 0, 11 );
+		return 'wpackagist-' === substr( $this->name(), 0, 11 );
 	}
 }

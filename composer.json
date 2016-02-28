@@ -9,5 +9,8 @@
     },
     "autoload": {
         "psr-4": { "SSNepenthe\\ComposerUtilities\\": "src/" }
+    },
+    "require-dev": {
+        "psy/psysh": "^0.7.1"
     }
 }

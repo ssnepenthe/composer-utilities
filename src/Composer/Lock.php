@@ -7,12 +7,12 @@
 
 namespace SSNepenthe\ComposerUtilities\Composer;
 
-use SSNepenthe\ComposerUtilities\Json;
+use SSNepenthe\ComposerUtilities\Json as JsonFile;
 
 /**
  * This class wraps a composer.lock file.
  */
-class Lock extends Json {
+class Lock extends JsonFile {
 	/**
 	 * MD5 hash of this composer.lock file
 	 *

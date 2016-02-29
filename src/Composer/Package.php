@@ -26,10 +26,10 @@ class Package {
 	public function __construct( $object ) {
 		$this->object = $object;
 	}
-	
+
 	/**
 	 * So we can use array_unique on a collection of packages.
-	 * 
+	 *
 	 * @return string
 	 */
 	public function __toString() {

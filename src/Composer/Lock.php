@@ -131,7 +131,7 @@ class Lock extends JsonFile {
 		$dev = $this->name_index()[ $name ]['dev'] ? 'packages-dev' : 'packages';
 		$key = $this->name_index()[ $name ]['key'];
 
-		return $this->object->{$dev}{$key};
+		return $this->object->{$dev}[ $key ];
 	}
 
 	/**

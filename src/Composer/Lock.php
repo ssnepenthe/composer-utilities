@@ -156,7 +156,7 @@ class Lock extends JsonFile {
 	 */
 	public function packages_by_type( $type ) {
 		if ( ! isset( $this->type_index()[ $type ] ) ) {
-			return null;
+			return [];
 		}
 
 		$r = [];
